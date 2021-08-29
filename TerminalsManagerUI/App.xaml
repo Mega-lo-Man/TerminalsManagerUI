@@ -1,0 +1,27 @@
+﻿<Application x:Class="TerminalsManagerUI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:TerminalsManagerUI"
+             xmlns:viewmodels="clr-namespace:TerminalsManagerUI.ViewModels.Dialogs"
+             xmlns:views="clr-namespace:TerminalsManagerUI.Views"
+             xmlns:AssemblyView="clr-namespace:TerminalsManagerUI.Views"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+
+        <DataTemplate DataType="{x:Type viewmodels:ViewModelAddDetectorToDB}">
+            <views:AddDetectorDialogView />
+        </DataTemplate>
+        
+        <DataTemplate DataType="{x:Type viewmodels:ViewModelCableWindow}">
+            <views:AddCableDialogView/>
+        </DataTemplate>
+        
+        <DataTemplate DataType="{x:Type viewmodels:ViewModelAddCableToDB}">
+            <views:AddCableToDBdialogView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewmodels:ViewModelEditDetector}">
+            <views:EditDetectorDataGridView/>
+        </DataTemplate>
+    </Application.Resources>
+</Application>
