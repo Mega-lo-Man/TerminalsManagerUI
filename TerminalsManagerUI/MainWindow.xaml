@@ -254,13 +254,13 @@
                         <ListView 
                             Grid.Row="1" 
                             ItemsSource="{Binding VMCables}"
+                            Visibility="{Binding GetVisibility}"
                             
                             dd:DragDrop.IsDragSource="True"
                             dd:DragDrop.IsDropTarget="True"
                             dd:DragDrop.DropHandler="{Binding }"
                             dd:DragDrop.UseDefaultDragAdorner="False"
                             dd:DragDrop.UseDefaultEffectDataTemplate="False"
-
                             >
 
                             <ListView.ItemContainerStyle>

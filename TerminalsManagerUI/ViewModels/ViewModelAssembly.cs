@@ -11,8 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using GongSolutions.Wpf.DragDrop;
 using TerminalsManagerUI.Models;
-using Color = System.Drawing.Color;
-using DragDrop = GongSolutions.Wpf.DragDrop.DragDrop;
+
 
 namespace TerminalsManagerUI.ViewModels
 {
@@ -83,6 +82,33 @@ namespace TerminalsManagerUI.ViewModels
             }
         }
 
+
+        // If the number of available cables in the assembly is equal to zero, then it is necessary to extinguish the cable list
+        public Visibility GetVisibility
+        {
+            get
+            {
+                return GetAssembly.Device.NumbersOfCable < 1 ? Visibility.Hidden : Visibility.Visible;
+            }
+        }
+
+        public void ChangeColor()
+        {
+            if (GetAssembly.Device.NumbersOfCable == VMCables.Count())
+            {
+                ViewModelColor = Brushes.LightGreen;
+            }
+            else
+            {
+                ViewModelColor = Brushes.Lavender;
+            }
+        }
+
+        public void SetErrorColor()
+        {
+            ViewModelColor = Brushes.Red;
+        }
+
         public Assembly GetAssembly
         {
             get
@@ -137,21 +163,6 @@ namespace TerminalsManagerUI.ViewModels
         }
 
 
-        public void ChangeColor()
-        {
-            if (GetAssembly.Device.NumbersOfCable == VMCables.Count())
-            {
-                ViewModelColor = Brushes.LightGreen;
-            }
-            else
-            {
-                ViewModelColor = Brushes.Lavender;
-            }
-        }
-
-        public void SetErrorColor()
-        {
-            ViewModelColor = Brushes.Red;
-        }
+        
     }
 }
