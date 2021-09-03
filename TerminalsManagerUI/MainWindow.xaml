@@ -140,6 +140,7 @@
             ItemsSource="{Binding Path=CablesList}"
             SelectedItem="{Binding Path=SelectedCable}"
             
+            dd:DragDrop.DragDropContext="1"
             dd:DragDrop.IsDragSource="True"
             dd:DragDrop.IsDropTarget="True"
             dd:DragDrop.DropHandler="{Binding CablesList}"
@@ -150,20 +151,7 @@
             Grid.Column="2"
             Margin="5"
             >
-            <!--
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="ContextMenu">
-                        <Setter.Value>
-                            
-                            <ContextMenu>
-                                <MenuItem Header="Select brand" Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
-                            </ContextMenu>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListBox.ItemContainerStyle>
-            -->
+            
             <ListBox.ContextMenu>
                 <ContextMenu StaysOpen="true">
                     <MenuItem 
@@ -255,9 +243,9 @@
                             Grid.Row="1" 
                             ItemsSource="{Binding VMCables}"
                             Visibility="{Binding GetVisibility}"
-                            
+                            dd:DragDrop.DragDropContext="{Binding DragDropContext}"
                             dd:DragDrop.IsDragSource="True"
-                            dd:DragDrop.IsDropTarget="True"
+                            dd:DragDrop.IsDropTarget="{Binding IsTarget}"
                             dd:DragDrop.DropHandler="{Binding }"
                             dd:DragDrop.UseDefaultDragAdorner="False"
                             dd:DragDrop.UseDefaultEffectDataTemplate="False"

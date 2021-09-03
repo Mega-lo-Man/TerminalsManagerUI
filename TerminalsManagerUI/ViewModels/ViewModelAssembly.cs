@@ -7,10 +7,13 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using GongSolutions.Wpf.DragDrop;
+using GongSolutions.Wpf.DragDrop.Utilities;
 using TerminalsManagerUI.Models;
+using DragDrop = GongSolutions.Wpf.DragDrop.DragDrop;
 
 
 namespace TerminalsManagerUI.ViewModels
@@ -82,7 +85,29 @@ namespace TerminalsManagerUI.ViewModels
             }
         }
 
+        private bool _isTarget;
 
+        public bool IsTarget
+        {
+            get => _isTarget;
+            set
+            {
+                _isTarget = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _dragDropContext;
+
+        public string DragDropContext
+        {
+            get => _dragDropContext;
+            set
+            {
+                _dragDropContext = value;
+                OnPropertyChanged();
+            }
+        }
         // If the number of available cables in the assembly is equal to zero, then it is necessary to extinguish the cable list
         public Visibility GetVisibility
         {
@@ -91,7 +116,7 @@ namespace TerminalsManagerUI.ViewModels
                 return GetAssembly.Device.NumbersOfCable < 1 ? Visibility.Hidden : Visibility.Visible;
             }
         }
-
+        /*
         public void ChangeColor()
         {
             if (GetAssembly.Device.NumbersOfCable == VMCables.Count())
@@ -103,7 +128,7 @@ namespace TerminalsManagerUI.ViewModels
                 ViewModelColor = Brushes.Lavender;
             }
         }
-
+        */
         public void SetErrorColor()
         {
             ViewModelColor = Brushes.Red;
@@ -124,6 +149,9 @@ namespace TerminalsManagerUI.ViewModels
 
         public ViewModelAssembly(Assembly assembly)
         {
+            IsTarget = true;
+            // Allow Drag and drop between different collections
+            DragDropContext = "1";
             _assembly = (Assembly)assembly.Clone();
             _assembly.PerimeterCables = new List<Cable>();
             //ChangeColor();
@@ -137,19 +165,28 @@ namespace TerminalsManagerUI.ViewModels
 
         public override void Drop(IDropInfo dropInfo)
         {
+            if (dropInfo.Data is not ViewModelCable viewModelCable) 
+                return;
+            //base.Drop(dropInfo);
             
-            if (dropInfo.Data is not ViewModelCable viewModelCable) return;
-            if (GetAssembly.Device.NumbersOfCable > VMCables.Count())
+            
+            if (dropInfo.IsSameDragDropContextAsSource)
             {
-                VMCables.Add(viewModelCable);
-                ((IList) dropInfo.DragInfo.SourceCollection).Remove(viewModelCable);
-                
+                base.Drop(dropInfo);
             }
+            
+            if (GetAssembly.Device.NumbersOfCable <= VMCables.Count())
+            {
+                // Deny Drag and drop between different collections
+                DragDropContext = "2";
+            }
+            /*
             if (GetAssembly.Device.NumbersOfCable == VMCables.Count())
             {
                 ViewModelColor = Brushes.LightGreen;
-            }
+            }*/
             // If the added cable is redundant, we must return one of the cables from the target to the source.
+            /*
             else
             {
                 ((IList) dropInfo.DragInfo.SourceCollection).Add(VMCables.First());
@@ -158,10 +195,10 @@ namespace TerminalsManagerUI.ViewModels
                 VMCables.Add(viewModelCable);
                 
             }
+            */
             //var target = VMCables;
             //ChangeColor();
         }
-
 
         
     }

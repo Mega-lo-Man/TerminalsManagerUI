@@ -254,6 +254,9 @@ namespace TerminalsManagerUI.ViewModels
                         CablesList.Add(cable);
                     }
                     SelectedAssembly.VMCables.Clear();
+                    // Allow Drag and drop between different collections
+                    SelectedAssembly.DragDropContext = "1";
+                    SelectedAssembly.IsTarget = true;
                 });
             }
         }
@@ -412,28 +415,6 @@ namespace TerminalsManagerUI.ViewModels
             e.Accepted = assy.DeviceName.ToUpper().Contains(FilterText.ToUpper());
         }
 
-        /*
-        public override void Drop(IDropInfo dropInfo)
-        {
-            foreach (var viewModelAssembly in ViewModelAssemblyList)
-            {
-                viewModelAssembly.ChangeColor();
-            }
-        }
-
-        /*       public override void DragOver(IDropInfo dropInfo)
-               {
-                   if(dropInfo.Data is ViewModelAssembly)
-                   {
-                       base.DragOver(dropInfo);
-                   }
-
-                   if (dropInfo.Data is ViewModelCable && dropInfo.TargetItem is ViewModelCable)
-                   {
-                       dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
-                       dropInfo.Effects = DragDropEffects.Move;
-                   }
-               }
-        */
+        
     }
 }
