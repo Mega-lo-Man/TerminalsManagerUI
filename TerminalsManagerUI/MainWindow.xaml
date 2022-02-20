@@ -282,6 +282,9 @@
             Grid.Row="2"
             Grid.Column="3"
             ScrollViewer.HorizontalScrollBarVisibility="Auto">
+            <i:Interaction.Behaviors>
+                <behaviors:ScrollViewMousePan />
+            </i:Interaction.Behaviors>  
             <Image
                 Margin="3"
                 HorizontalAlignment="Stretch"
@@ -293,8 +296,6 @@
             </Image>
         </ScrollViewer>
         
-
-
         <Grid Grid.Row="4"
               Grid.Column="3"
               Margin="5">
