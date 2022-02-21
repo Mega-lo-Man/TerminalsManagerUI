@@ -19,16 +19,19 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="3*"/>
             <RowDefinition Height="Auto" MinHeight="90"/>
-            <RowDefinition Height="0.6*"/>
+            <RowDefinition Height="0.4*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1.8*"/>
-            <ColumnDefinition Width="0.5*"/>
-            <ColumnDefinition Width="0.8*"/>
+            <ColumnDefinition Width="1.4*"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="0.4*"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="0.4*"/>
+            <ColumnDefinition Width="5"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
 
-        <Menu Grid.Row="0" Grid.ColumnSpan="4">
+        <Menu Grid.Row="0" Grid.ColumnSpan="7">
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" Command="{Binding OpenFileCommand}" IsCheckable="False">
                     <MenuItem.ToolTip>
@@ -49,9 +52,9 @@
         </Menu>
 
         <Label Grid.Row="1" Grid.Column="0" Content="Devices"/>
-        <Label Grid.Row="1" Grid.Column="1" Content="Terminals"/>
-        <Label Grid.Row="1" Grid.Column="2" Content="Cables"/>
-        <Label Grid.Row="1" Grid.Column="3" Content="Schematic"/>
+        <Label Grid.Row="1" Grid.Column="2" Content="Terminals"/>
+        <Label Grid.Row="1" Grid.Column="4" Content="Cables"/>
+        <Label Grid.Row="1" Grid.Column="6" Content="Schematic"/>
         <Grid Grid.Row="2" Grid.Column="0" Margin="5" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -114,13 +117,21 @@
                 </ListBox>
 
         </Grid>
-        
+
+        <GridSplitter 
+            Grid.Column="1"
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            Width="5"
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Center"
+            />
 
         <ListBox x:Name="TerminalsListBox"
                  ItemsSource="{Binding TerminalsList}"
                  SelectedItem="{Binding Path=SelectedTerminal}"
                  Grid.Row="2"
-                 Grid.Column="1"
+                 Grid.Column="2"
                  Margin="5">
 
             <ListBox.ItemContainerStyle>
@@ -135,6 +146,15 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
+        <GridSplitter 
+            Grid.Column="5"
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            Width="5"
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Center"
+            />
+
         <ListBox 
             x:Name="CablesListBox"
             ItemsSource="{Binding Path=CablesList}"
@@ -148,7 +168,7 @@
             dd:DragDrop.UseDefaultEffectDataTemplate="False"
             
             Grid.Row="2"
-            Grid.Column="2"
+            Grid.Column="4"
             Margin="5"
             >
             
@@ -188,6 +208,15 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
+        <GridSplitter 
+            Grid.Column="3"
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            Width="5"
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Center"
+            />
+        
         <ListView 
             x:Name="AssemblyListBox"
             ItemsSource="{Binding Path=ViewModelAssemblyList}"
@@ -201,7 +230,7 @@
             
             Grid.Row="3"
             Grid.Column="0"
-            Grid.ColumnSpan="4"
+            Grid.ColumnSpan="7"
             Margin="5">
 
             <ListView.ItemContainerStyle>
@@ -280,7 +309,7 @@
         </ListView>
         <ScrollViewer
             Grid.Row="2"
-            Grid.Column="3"
+            Grid.Column="6"
             ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <i:Interaction.Behaviors>
                 <behaviors:ScrollViewMousePan />
@@ -295,9 +324,9 @@
                 </i:Interaction.Behaviors>
             </Image>
         </ScrollViewer>
-        
+
         <Grid Grid.Row="4"
-              Grid.Column="3"
+              Grid.Column="6"
               Margin="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
