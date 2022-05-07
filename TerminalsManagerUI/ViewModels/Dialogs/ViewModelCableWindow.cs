@@ -12,7 +12,11 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
     {
 
         private List<Cable> _cables;
+
+        #region Properties
         public ICommand AddCommand { get; set; }
+
+        public string ConnectionString { get; set; }
 
         public List<Cable> Cables
         { 
@@ -45,9 +49,10 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
                 OnPropertyChanged();
             }
         }
+        #endregion Properties
 
         #region Commands
-    
+
         private RelayCommand _addNewCableToDbCommand;
         public RelayCommand AddNewCableToDbCommand
         {
@@ -64,9 +69,9 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
         
         #endregion Commands
 
-        public ViewModelCableWindow(/*IList<Cable> cables*/):base()
+        public ViewModelCableWindow():base()
         {
-            using (var unitOfWork = new UnitOfWork(new ModelDbContext()))
+            using (var unitOfWork = new UnitOfWork(new ModelDbContext(ConnectionString)))
             {
                 _cables = (List<Cable>)unitOfWork.Cables.GetAllCables();
             }

@@ -11,7 +11,13 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
 {
     public class ViewModelEditDetector : DialogViewModelBase<bool>
     {
+
         private string _textBind;
+
+        #region Properties
+
+        public RelayCommand<IDialogWindow> OkCommand { get; }
+
         public string TextBind
         {
             get => _textBind;
@@ -33,11 +39,14 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
             }
         }
 
+        public string ConnectionString { get; set; }
+        #endregion Properties
+
         public ViewModelEditDetector()
         {
             OkCommand = new RelayCommand<IDialogWindow>(Ok);
 
-            using (var unitOfWork = new UnitOfWork(new ModelDbContext()))
+            using (var unitOfWork = new UnitOfWork(new ModelDbContext(ConnectionString)))
             {
                 var perimeterDevices = unitOfWork.PerimeterDevices.GetAllPerimeterDevices().ToList();
                 PerimeterDevicesViewModels = new();
@@ -49,11 +58,11 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
             TextBind = "123";
         }
 
-        public RelayCommand<IDialogWindow> OkCommand { get; }
+        
 
         private void Ok(IDialogWindow window)
         {
-            using (var unitOfWork = new UnitOfWork(new ModelDbContext()))
+            using (var unitOfWork = new UnitOfWork(new ModelDbContext(ConnectionString)))
             {
                 foreach (var item in PerimeterDevicesViewModels)
                 {

@@ -19,9 +19,27 @@ namespace TerminalsManagerUI.Services.DataRepository
             //Database.SetInitializer<ModelDbContext>(new ContextInitializer());
         }
 
-        public ModelDbContext() : base("Server=(localdb)\\MSSQLLocalDB;Database=acadBase1;Trusted_Connection=True;")//("name=DefaultConnection")
+        public bool IsDbExists 
         {
-            this.Configuration.LazyLoadingEnabled = false;
+            get
+            {
+                try
+                {
+                    Database.Connection.Open();
+                    var result = Database.Exists();
+                    Database.Connection.Close();
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+            }
+        }
+
+        public ModelDbContext(string connString) : base(connString)//"Server=localhost;Database=acadBlocksDatabase;Trusted_Connection=True;")//("name=DefaultConnection")
+        {
+            this.Configuration.LazyLoadingEnabled = true;
             
         }
 

@@ -1,28 +1,14 @@
 ﻿using Command;
-using GongSolutions.Wpf.DragDrop;
 using TerminalsManagerUI.Models;
 using TerminalsManagerUI.Services;
 using TerminalsManagerUI.Services.DataRepository;
 using TerminalsManagerUI.ViewModels.Dialogs;
-using Newtonsoft.Json;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace TerminalsManagerUI.ViewModels
 {
@@ -31,9 +17,10 @@ namespace TerminalsManagerUI.ViewModels
         private const int AppJsonGenerateSuccess = 100;
         private readonly IDialogService _dialogService;
         private const string AssemblyJsonFileName = "c:\\Temp\\assembly.json";
-        private readonly CollectionViewSource _perimeterDevicesCollection;
+        private CollectionViewSource _perimeterDevicesCollection = new();
+        private string connectionString = @"Server=localhost;Database=acadBlocksDatabase;Trusted_Connection=True;";
 
-        #region Properties
+        #region Properties 
 
         private System.Collections.ObjectModel.ObservableCollection<ViewModelAssembly> _perimeterDeviceList;
         public System.Collections.ObjectModel.ObservableCollection<ViewModelAssembly> PerimeterDeviceList
@@ -161,7 +148,15 @@ namespace TerminalsManagerUI.ViewModels
             }
         }
 
-        public ICollectionView SourceCollection => _perimeterDevicesCollection.View;
+        public ICollectionView SourceCollection
+        {
+            get => _perimeterDevicesCollection.View;
+            set
+            {
+                OnPropertyChanged();
+            }
+        }
+        
 
         #endregion Properties
 
@@ -175,7 +170,7 @@ namespace TerminalsManagerUI.ViewModels
             {
                 return _addCableCommand ??= new RelayCommand(obj =>
                 {
-                    var dialog = new ViewModelCableWindow(/*GetCablesList()*/);
+                    var dialog = new ViewModelCableWindow();
                     var result = _dialogService.OpenDialog(dialog);
                     if (result != null)
                     {
@@ -211,7 +206,7 @@ namespace TerminalsManagerUI.ViewModels
             {
                 return _deleteDetectorCommand ??= new RelayCommand(obj =>
                 {
-                    using (var unitOfWork = new UnitOfWork(new ModelDbContext()))
+                    using (var unitOfWork = new UnitOfWork(new ModelDbContext(connectionString)))
                     {
                         var p = unitOfWork.PerimeterDevices.Get(SelectedPerimeterDevice.GetAssembly.Device.Id);
 
@@ -335,6 +330,28 @@ namespace TerminalsManagerUI.ViewModels
             }
         }
 
+        //OpenDBConnectionStringCommand
+        private RelayCommand _openDBConnectionStringCommand;
+        public RelayCommand OpenDBConnectionStringCommand
+        {
+            get
+            {
+                return _openDBConnectionStringCommand ??= new RelayCommand(obj =>
+                {
+                    var dialog = new ViewModelDbConnectionString
+                    {
+                        ConnectionString = connectionString
+                    };
+                    var result = _dialogService.OpenDialog(dialog);
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        connectionString = result;
+                        LoadData();
+                    }
+                });
+            }
+        }
+
         //GenerateJsonAndCloseWindow
         private RelayCommand _generateJsonAndCloseWindow;
         public RelayCommand GenerateJsonAndCloseWindow
@@ -384,9 +401,21 @@ namespace TerminalsManagerUI.ViewModels
             CablesList = new ObservableCollection<ViewModelCable>();
             ViewModelAssemblyList = new ObservableCollection<ViewModelAssembly>();
 
+            LoadData();
             
-            using (var unitOfWork = new UnitOfWork(new ModelDbContext()))
+        }
+        #endregion Constructor   
+
+
+        private void LoadData()
+        {
+            _perimeterDevicesCollection.SortDescriptions.Clear();
+            PerimeterDeviceList.Clear();
+
+            using (var unitOfWork = new UnitOfWork(new ModelDbContext(connectionString)))
             {
+                if (!unitOfWork.IsDbExists)
+                    return;
                 var deviceList = unitOfWork.PerimeterDevices.GetAll();
                 foreach (var perimeterDevice in deviceList)
                 {
@@ -395,13 +424,13 @@ namespace TerminalsManagerUI.ViewModels
                 }
             }
 
-            _perimeterDevicesCollection = new CollectionViewSource
-            {
-                Source = PerimeterDeviceList
-            };
+            _perimeterDevicesCollection.Source = PerimeterDeviceList;
+            
             _perimeterDevicesCollection.Filter += ApplyFilter;
+
+            OnPropertyChanged("SourceCollection");
+        
         }
-        #endregion Constructor   
 
         private void ApplyFilter(object sender, FilterEventArgs e)
         {

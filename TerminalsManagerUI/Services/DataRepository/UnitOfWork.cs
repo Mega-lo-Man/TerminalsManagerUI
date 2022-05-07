@@ -17,6 +17,8 @@ namespace TerminalsManagerUI.Services.DataRepository
             PerimeterDevices = new PerimeterDeviceRepository(_context);
         }
 
+        public bool IsDbExists { get => _context.IsDbExists; }
+
         public ICableRepository Cables { get; private set; }
 
         public IPerimeterDeviceRepository PerimeterDevices { get; private set; }

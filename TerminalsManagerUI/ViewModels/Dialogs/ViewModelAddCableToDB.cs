@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
+using System.Windows;
 
 namespace TerminalsManagerUI.ViewModels.Dialogs
 {
@@ -19,7 +20,11 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
         public ICommand OkCommand { get; private set; }
 
         #region Properties
+
         private ObservableCollection<ViewModelCable> _cablesListObservable;
+
+        public string ConnectionString { get; set; }
+
         public ObservableCollection<ViewModelCable> CablesListObservable
         {
             get => _cablesListObservable;
@@ -121,8 +126,7 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
         {
             get
             {
-                return _addCableToDbCommand ??
-                  (_addCableToDbCommand = new RelayCommand(obj =>
+                return _addCableToDbCommand ??= new RelayCommand(obj =>
                   {
                       if (CableBrand != null)
                       {
@@ -137,7 +141,7 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
                           CablesListObservable.Add(new ViewModelCable(newCable));
                       }
                   },
-                  (obj) => !errors.Values.Any(x => x != null)));
+                  (obj) => !errors.Values.Any(x => x != null));
             }
         }
 
@@ -158,27 +162,17 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
             }
         }
 
-        //OkCommand
-        /*private RelayCommand _okCommand;
-        public RelayCommand OkCommand
-        {
-            get
-            {
-                return _okCommand ??
-                  (_okCommand = new RelayCommand(obj =>
-                  {
-                      _unitOfWork.Complete();
-                      CloseDialogWithResult(obj, _cablesList);
-                  }));
-            }
-        }
-*/
         #endregion Commands
 
         public ViewModelAddCableToDB()
         {
-            using (var unitOfWork = new UnitOfWork(new ModelDbContext()))
+            using (var unitOfWork = new UnitOfWork(new ModelDbContext(ConnectionString)))
             {
+                if (!unitOfWork.IsDbExists)
+                {
+                    MessageBox.Show("Database is unavailable!");
+                    return;
+                }
                 _cablesList = (List<Cable>)_unitOfWork.Cables.GetAllCables();
             }
             OkCommand = new RelayCommand<IDialogWindow>(Ok);
@@ -192,8 +186,13 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
 
         private void Ok(IDialogWindow window)
         {
-            using (var unitOfWork = new UnitOfWork(new ModelDbContext()))
+            using (var unitOfWork = new UnitOfWork(new ModelDbContext(ConnectionString)))
             {
+                if (!unitOfWork.IsDbExists)
+                {
+                    MessageBox.Show("Database is unavailable!");
+                    return;
+                }
                 unitOfWork.Complete();
             }
             CloseDialogWithResult(window, _cablesList);

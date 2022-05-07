@@ -26,11 +26,6 @@ namespace TerminalsManagerUI.Services
             Title = title;
             Message = message;
         }
-        
-        public DialogViewModelBase(T perimeterDevice)
-        {
-            _perimeterDevice = perimeterDevice;
-        }
 
         public void CloseDialogWithResult(IDialogWindow dialog, T result)
         {

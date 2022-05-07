@@ -17,12 +17,8 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
 {
     public class ViewModelAddDetectorToDB : DialogViewModelBase<PerimeterDevice>
     {
-        private PerimeterDevice _perimeterDevice;
-
+        #region Properties
         public ICommand OKCommand { get; set; }
-
-        private readonly IUnitOfWork _unitOfWork;
-
         public ICommand CancelCommand { get; set; }
         public ICommand PasteTerminalsCommand { get; set; }
         //public ICommand OpenFileCommand { get; set; }
@@ -65,22 +61,25 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
             }
         }
 
+        public string ConnectionString { get; set; }
+#endregion Properties
         // Open Autocad Block Reference file (*.dwg) command
         private RelayCommand _openBlockRefCommand;
         public RelayCommand OpenBlockRefCommand
         {
             get
             {
-                return _openBlockRefCommand ??
-                  (_openBlockRefCommand = new RelayCommand(obj =>
+                return _openBlockRefCommand ??= new RelayCommand(obj =>
                   {
-                      var openFileDialog = new OpenFileDialog();
-                      openFileDialog.Filter = "Text files (*.dwg)|*.dwg|All files (*.*)|*.*";
+                      var openFileDialog = new OpenFileDialog
+                      {
+                          Filter = "Text files (*.dwg)|*.dwg|All files (*.*)|*.*"
+                      };
                       if (openFileDialog.ShowDialog() == true)
                       {
                           BlockRef = openFileDialog.FileName;
                       }
-                  }));
+                  });
             }
         }
 
@@ -90,38 +89,24 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
         {
             get
             {
-                return _openImageCommand ??
-                  (_openImageCommand = new RelayCommand(obj =>
+                return _openImageCommand ??= new RelayCommand(obj =>
                   {
-                      var openFileDialog = new OpenFileDialog();
-                      openFileDialog.Filter = "Image files (*.png;*.jpeg;*.jpg)|*.png;*.jpeg;*.jpg|All files (*.*)|*.*";
+                      var openFileDialog = new OpenFileDialog
+                      {
+                          Filter = "Image files (*.png;*.jpeg;*.jpg)|*.png;*.jpeg;*.jpg|All files (*.*)|*.*"
+                      };
                       if (openFileDialog.ShowDialog() == true)
                       {
                           ImagePath = openFileDialog.FileName;
                       }
-                  }));
+                  });
             }
         }
 
-        /*
-        public ViewModelAddDetector(string title, string message) : base(title, message)
+        public ViewModelAddDetectorToDB()
         {
-            OKCommand = new RelayCommand<IDialogWindow>(OK);
-        }
-        */
-
-        public ViewModelAddDetectorToDB(/*IUnitOfWork unitOfWork*/)// : base(perimeterDevice)
-        {
-            //_perimeterDevice = perimeterDevice;
-            //_unitOfWork = unitOfWork;
             CancelCommand = new RelayCommand<IDialogWindow>(Cancel);
             OKCommand = new RelayCommand<IDialogWindow>(OK);
-            /*foreach(var terminalStr in _perimeterDevice.TerminalsList)
-            {
-                Terminals += terminalStr;
-            }
-            */
-            //OpenFileCommand = new RelayCommand()
         }
 
         private void OK(IDialogWindow window)
@@ -137,8 +122,13 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
                     BlockRef = BlockRef,
                     ImagePath = ImagePath
                 };
-                using (var unitOfWork = new UnitOfWork(new ModelDbContext()))
+                using (var unitOfWork = new UnitOfWork(new ModelDbContext(ConnectionString)))
                 {
+                    if(!unitOfWork.IsDbExists)
+                    {
+                        MessageBox.Show("Database is unavailable!");
+                        return;
+                    }
                     unitOfWork.PerimeterDevices.Add(newPerimeterDevice);
                     unitOfWork.Complete();
                 }
@@ -146,7 +136,6 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
             }
             else
             {
-                //CloseDialogWithResult(window, null);
                 Cancel(window);
             }
         }
@@ -156,7 +145,7 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
             CloseDialogWithResult(window, null);
         }
 
-        private List<string> ConvertStringToList(string terminalsStr)
+        private static List<string> ConvertStringToList(string terminalsStr)
         {
             if (terminalsStr?.Length > 0)
             {
