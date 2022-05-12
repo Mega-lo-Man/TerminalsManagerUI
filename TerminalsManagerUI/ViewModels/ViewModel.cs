@@ -16,7 +16,8 @@ namespace TerminalsManagerUI.ViewModels
     {
         private const int AppJsonGenerateSuccess = 100;
         private readonly IDialogService _dialogService;
-        private const string AssemblyJsonFileName = "c:\\Temp\\assembly.json";
+        private const string JsonFileName = "assembly.json";
+        private string AssemblyJsonFilePath;
         private CollectionViewSource _perimeterDevicesCollection = new();
         private string connectionString = @"Server=localhost;Database=acadBlocksDatabase;Trusted_Connection=True;";
 
@@ -170,7 +171,10 @@ namespace TerminalsManagerUI.ViewModels
             {
                 return _addCableCommand ??= new RelayCommand(obj =>
                 {
-                    var dialog = new ViewModelCableWindow();
+                    var dialog = new ViewModelCableWindow()
+                    {
+                        ConnectionString = connectionString
+                    };
                     var result = _dialogService.OpenDialog(dialog);
                     if (result != null)
                     {
@@ -189,7 +193,10 @@ namespace TerminalsManagerUI.ViewModels
                 return _addDetectorCommand ??= new RelayCommand(obj =>
                 {
 
-                    var dialog = new ViewModelAddDetectorToDB();
+                    var dialog = new ViewModelAddDetectorToDB()
+                    {
+                        ConnectionString = connectionString
+                    };
                     var result = _dialogService.OpenDialog(dialog);
                     if (result == null) return;
                     var newAssembly = new Assembly(result);
@@ -228,9 +235,14 @@ namespace TerminalsManagerUI.ViewModels
             {
                 return _editDetectorCommand ??= new RelayCommand(obj =>
                 {
-                    var dialog = new ViewModelEditDetector();
+                    var dialog = new ViewModelEditDetector(connectionString);
+                    
                     var result = _dialogService.OpenDialog(dialog);
                     Debug.WriteLine("Dialog result: " + result.ToString());
+                    if(result == true)
+                    {
+                        LoadData();
+                    }
                 });
             }
         }
@@ -373,7 +385,7 @@ namespace TerminalsManagerUI.ViewModels
                     {
                         var assemblySaver = new AssemblySaver
                         {
-                            TargetFileName = AssemblyJsonFileName
+                            TargetFileName = AssemblyJsonFilePath
                         };
                         if (assemblySaver.Save(ViewModelAssemblyList))
                         {
@@ -395,7 +407,7 @@ namespace TerminalsManagerUI.ViewModels
         public ViewModel( IDialogService dialogService )
         {
             _dialogService = dialogService;
-
+            AssemblyJsonFilePath = System.IO.Path.GetTempPath() + JsonFileName;
             PerimeterDeviceList = new ObservableCollection<ViewModelAssembly>();
             TerminalsList = new System.Collections.ObjectModel.ObservableCollection<string>();
             CablesList = new ObservableCollection<ViewModelCable>();

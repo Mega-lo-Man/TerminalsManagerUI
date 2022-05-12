@@ -42,11 +42,12 @@ namespace TerminalsManagerUI.ViewModels.Dialogs
         public string ConnectionString { get; set; }
         #endregion Properties
 
-        public ViewModelEditDetector()
+        public ViewModelEditDetector(string connectionString)
         {
+            ConnectionString = connectionString;
             OkCommand = new RelayCommand<IDialogWindow>(Ok);
 
-            using (var unitOfWork = new UnitOfWork(new ModelDbContext(ConnectionString)))
+            using (var unitOfWork = new UnitOfWork(new ModelDbContext(connectionString)))
             {
                 var perimeterDevices = unitOfWork.PerimeterDevices.GetAllPerimeterDevices().ToList();
                 PerimeterDevicesViewModels = new();
