@@ -207,7 +207,19 @@
                             <RowDefinition Height="1*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="{Binding Designation}" Grid.Column="0" Grid.Row="0"/>
+                        <TextBox 
+                            Text="{Binding Designation}"
+                            Grid.Column="0" 
+                            Grid.Row="0"
+                            >
+                            <TextBox.InputBindings>
+                                <KeyBinding 
+                                    Key="Return" 
+                                    Command="{Binding DataContext.OnEnterKeyDownHandler, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" 
+                                />
+                            </TextBox.InputBindings>
+                        </TextBox>
+                            
                         <TextBlock Text="{Binding Brand}" Grid.Column="0" Grid.Row="1"/>
 
                     </Grid>
@@ -272,7 +284,12 @@
                             <RowDefinition Height="Auto" MinHeight="35"/>
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Column="0" Grid.Row="0">
+                        <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
+                            <CheckBox IsChecked="{Binding IsSurgeProtection}" Margin="0 0 2 0" >
+                                <CheckBox.ToolTip>
+                                    <TextBlock>Surge Protection</TextBlock>
+                                </CheckBox.ToolTip>
+                            </CheckBox>
                             <TextBlock Text="{Binding Path=DeviceName}" TextAlignment="Center"/>
                         </StackPanel>
                         <ListView 
@@ -304,9 +321,7 @@
                             </ListView.ItemsPanel>
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-
-                                        <TextBlock Text="{Binding Path=Designation, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center"/>
-
+                                    <TextBlock Text="{Binding Path=Designation, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center"/>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>

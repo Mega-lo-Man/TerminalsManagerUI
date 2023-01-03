@@ -37,6 +37,8 @@ namespace TerminalsManagerUI.Models
 
         public PerimeterDevice Device { get; set; }
         public List<Cable> PerimeterCables { get; set; }
+        public bool IsSourgeProtection { get; set; }
+        public bool IsExplosionProof { get; set; }
 
         public object Clone()
         {

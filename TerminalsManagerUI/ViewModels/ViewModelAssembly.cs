@@ -22,6 +22,16 @@ namespace TerminalsManagerUI.ViewModels
     {
         private Assembly _assembly;
 
+        public bool IsSurgeProtection
+        {
+            get => _assembly.IsSourgeProtection;
+            set
+            {
+                _assembly.IsSourgeProtection = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string DeviceName 
         {
             get => _assembly.Device.DeviceName; 

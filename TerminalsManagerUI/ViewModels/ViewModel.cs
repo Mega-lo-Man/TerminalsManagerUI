@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
+using TerminalsManagerUI.Utilities;
 
 namespace TerminalsManagerUI.ViewModels
 {
@@ -401,6 +402,32 @@ namespace TerminalsManagerUI.ViewModels
                 });
             }
         }
+
+        //OnKeyDownHandler
+        private RelayCommand _onEnterKeyDownHandler;
+        public RelayCommand OnEnterKeyDownHandler
+        {
+            get
+            {
+                return _onEnterKeyDownHandler ??= new RelayCommand(obj =>
+                {
+                    var newCable = new Cable() { Designation = IncreaseCableNumber(SelectedCable.Designation) };
+                    var newViewModelCable = new ViewModelCable(newCable);
+                    CablesList.Add(newViewModelCable);
+                    SelectedCable = newViewModelCable;
+                });
+            }
+        }
+
+        private string IncreaseCableNumber(string designation)
+        {
+            if (StringUtils.TryIncreaseLastNumber(designation, out var increaseString))
+            { 
+                 return increaseString;
+            }
+            return designation;
+        }
+
         #endregion Commands
 
         #region Constructor
@@ -410,7 +437,12 @@ namespace TerminalsManagerUI.ViewModels
             AssemblyJsonFilePath = System.IO.Path.GetTempPath() + JsonFileName;
             PerimeterDeviceList = new ObservableCollection<ViewModelAssembly>();
             TerminalsList = new System.Collections.ObjectModel.ObservableCollection<string>();
-            CablesList = new ObservableCollection<ViewModelCable>();
+            var firstVievModelCable = new ViewModelCable(new Cable() { Designation = "K1" });
+            CablesList = new() 
+            { 
+                firstVievModelCable
+            };
+            SelectedCable = firstVievModelCable;
             ViewModelAssemblyList = new ObservableCollection<ViewModelAssembly>();
 
             LoadData();
