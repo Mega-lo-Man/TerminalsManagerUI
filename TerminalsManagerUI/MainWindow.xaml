@@ -24,14 +24,16 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.4*"/>
             <ColumnDefinition Width="5"/>
-            <ColumnDefinition Width="0.4*"/>
+            <ColumnDefinition Width="1.4*"/>
             <ColumnDefinition Width="5"/>
             <ColumnDefinition Width="0.4*"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="70"/>
             <ColumnDefinition Width="5"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
 
-        <Menu Grid.Row="0" Grid.ColumnSpan="7">
+        <Menu Grid.Row="0" Grid.ColumnSpan="9">
             <MenuItem Header="_File">
                 <MenuItem Header="_Open" Command="{Binding OpenFileCommand}" IsCheckable="False">
                     <MenuItem.ToolTip>
@@ -59,9 +61,11 @@
         </Menu>
 
         <Label Grid.Row="1" Grid.Column="0" Content="Devices"/>
-        <Label Grid.Row="1" Grid.Column="2" Content="Terminals"/>
-        <Label Grid.Row="1" Grid.Column="4" Content="Cables"/>
-        <Label Grid.Row="1" Grid.Column="6" Content="Schematic"/>
+        <Label Grid.Row="1" Grid.Column="2" Content="Cache"/>
+        <Label Grid.Row="1" Grid.Column="4" Content="Terminals"/>
+        <Label Grid.Row="1" Grid.Column="6" Content="Cables"/>
+        <Label Grid.Row="1" Grid.Column="8" Content="Schematic"/>
+        
         <Grid Grid.Row="2" Grid.Column="0" Margin="5" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -69,59 +73,59 @@
             </Grid.RowDefinitions>
 
             <TextBox Grid.Row="0" Margin="0,0,0,5" Name="txtFilter" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            
+
             <ListBox 
-            x:Name="PerimeterDeviceListBox"
-            Grid.Row="1"
-            ItemsSource="{Binding Path=SourceCollection}"
-            SelectedItem="{Binding Path=SelectedPerimeterDevice}"
-            ScrollViewer.VerticalScrollBarVisibility="Auto"
-            ScrollViewer.CanContentScroll="False"
+                x:Name="PerimeterDeviceListBox"
+                Grid.Row="1"
+                ItemsSource="{Binding Path=SourceCollection}"
+                SelectedItem="{Binding Path=SelectedPerimeterDevice}"
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.CanContentScroll="False"
 
-            dd:DragDrop.IsDragSource="True"
-            dd:DragDrop.IsDropTarget="False"
-            dd:DragDrop.DropHandler="{Binding PerimeterDeviceList}"
-            dd:DragDrop.DragDropCopyKeyState="LeftMouseButton"
-            dd:DragDrop.UseDefaultDragAdorner="False"
-            dd:DragDrop.UseDefaultEffectDataTemplate="False"
+                dd:DragDrop.IsDragSource="True"
+                dd:DragDrop.IsDropTarget="False"
+                dd:DragDrop.DropHandler="{Binding PerimeterDeviceList}"
+                dd:DragDrop.DragDropCopyKeyState="LeftMouseButton"
+                dd:DragDrop.UseDefaultDragAdorner="False"
+                dd:DragDrop.UseDefaultEffectDataTemplate="False"
 
-            >
+                >
 
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-                            <Setter Property="Margin" Value="3"/>
-                            <Setter Property="Background" Value="#FFEAF3F3"/>
-                            <Setter Property="BorderThickness" Value="1"/>
-                            <Setter Property="BorderBrush" Value="Gray"/>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                        <Setter Property="Margin" Value="3"/>
+                        <Setter Property="Background" Value="#FFEAF3F3"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="BorderBrush" Value="Gray"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
 
-                    <ListBox.ContextMenu>
-                        <ContextMenu StaysOpen="true">
-                            <MenuItem Header="Add" Foreground="Black" Command="{Binding Path=AddDetectorCommand}"/>
-                            <MenuItem Header="Paste" Foreground="Black" Command="{Binding Path=PasteDetectorCommand}"/>
-                            <MenuItem Header="Edit" Foreground="Black" Command="{Binding Path=EditDetectorCommand}"/>
-                            <MenuItem Header="Delete" Foreground="Black" Command="{Binding Path=DeleteDetectorCommand}"/>
-                        </ContextMenu>
-                    </ListBox.ContextMenu>
+                <ListBox.ContextMenu>
+                    <ContextMenu StaysOpen="true">
+                        <MenuItem Header="Add" Foreground="Black" Command="{Binding Path=AddDetectorCommand}"/>
+                        <MenuItem Header="Paste" Foreground="Black" Command="{Binding Path=PasteDetectorCommand}"/>
+                        <MenuItem Header="Edit" Foreground="Black" Command="{Binding Path=EditDetectorCommand}"/>
+                        <MenuItem Header="Delete" Foreground="Black" Command="{Binding Path=DeleteDetectorCommand}"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
 
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="1*"/>
-                                </Grid.RowDefinitions>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                            </Grid.RowDefinitions>
 
-                                <TextBlock Text="{Binding Path=DeviceName}" Grid.Column="0" Grid.Row="0"/>
-                                <TextBlock Text="{Binding Path=DeviceDescription}" Grid.Column="0" Grid.Row="1"/>
+                            <TextBlock Text="{Binding Path=DeviceName}" Grid.Column="0" Grid.Row="0"/>
+                            <TextBlock Text="{Binding Path=DeviceDescription}" Grid.Column="0" Grid.Row="1"/>
 
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
 
-                </ListBox>
+            </ListBox>
 
         </Grid>
 
@@ -134,11 +138,86 @@
             HorizontalAlignment="Center"
             />
 
+        <Grid Grid.Row="2" Grid.Column="2" Margin="5" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="372.16"/>
+            </Grid.RowDefinitions>
+
+            <TextBox Grid.Row="0" Margin="0,0,0,5" Name="cacheFilter" Text="{Binding FilterTextCache, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+
+            <ListBox 
+                x:Name="DevicesCache"
+                Grid.Row="1"
+                ItemsSource="{Binding Path=SourceCollectionCache}"
+                SelectedItem="{Binding Path=SelectedPerimeterDeviceCache}"
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.CanContentScroll="False"
+
+                dd:DragDrop.IsDragSource="True"
+                dd:DragDrop.IsDropTarget="False"
+                dd:DragDrop.DropHandler="{Binding PerimeterDeviceList}"
+                dd:DragDrop.DragDropCopyKeyState="LeftMouseButton"
+                dd:DragDrop.UseDefaultDragAdorner="False"
+                dd:DragDrop.UseDefaultEffectDataTemplate="False"
+
+                >
+
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                        <Setter Property="Margin" Value="3"/>
+                        <Setter Property="Background" Value="#FFEAF3F3"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="BorderBrush" Value="Gray"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+                <ListBox.ContextMenu>
+                    <ContextMenu StaysOpen="true">
+                        
+                        <MenuItem Header="Edit" Foreground="Black" Command="{Binding Path=EditDetectorCommand}"/>
+                        <MenuItem Header="Delete" Foreground="Black" Command="{Binding Path=DeleteCacheDetectorCommand}"/>
+                        <MenuItem Header="Delete All" Foreground="Black" Command="{Binding Path=DeleteAllCacheDetectorCommand}"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="{Binding Path=DeviceName}" Grid.Column="0" Grid.Row="0"/>
+                            <TextBlock Text="{Binding Path=DeviceDescription}" Grid.Column="0" Grid.Row="1"/>
+
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+
+            </ListBox>
+
+        </Grid>
+
+
+
+
+        <GridSplitter 
+            Grid.Column="3"
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            Width="5"
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Center"
+            />
+
         <ListBox x:Name="TerminalsListBox"
                  ItemsSource="{Binding TerminalsList}"
                  SelectedItem="{Binding Path=SelectedTerminal}"
                  Grid.Row="2"
-                 Grid.Column="2"
+                 Grid.Column="4"
                  Margin="5">
 
             <ListBox.ItemContainerStyle>
@@ -175,7 +254,7 @@
             dd:DragDrop.UseDefaultEffectDataTemplate="False"
             
             Grid.Row="2"
-            Grid.Column="4"
+            Grid.Column="6"
             Margin="5"
             >
             
@@ -228,7 +307,7 @@
         </ListBox>
 
         <GridSplitter 
-            Grid.Column="3"
+            Grid.Column="7"
             Grid.Row="1"
             Grid.RowSpan="2"
             Width="5"
@@ -249,7 +328,7 @@
             
             Grid.Row="3"
             Grid.Column="0"
-            Grid.ColumnSpan="7"
+            Grid.ColumnSpan="9"
             Margin="5">
 
             <ListView.ItemContainerStyle>
@@ -331,7 +410,7 @@
         </ListView>
         <ScrollViewer
             Grid.Row="2"
-            Grid.Column="6"
+            Grid.Column="8"
             ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <i:Interaction.Behaviors>
                 <behaviors:ScrollViewMousePan />
@@ -348,7 +427,7 @@
         </ScrollViewer>
 
         <Grid Grid.Row="4"
-              Grid.Column="6"
+              Grid.Column="8"
               Margin="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>

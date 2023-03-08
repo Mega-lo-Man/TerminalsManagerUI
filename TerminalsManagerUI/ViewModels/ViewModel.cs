@@ -10,157 +10,22 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using TerminalsManagerUI.Utilities;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Collections.ObjectModel;
 
 namespace TerminalsManagerUI.ViewModels
 {
-    public class ViewModel : ViewModelBase
+    public partial class ViewModel : ViewModelBase
     {
         private const int AppJsonGenerateSuccess = 100;
         private readonly IDialogService _dialogService;
+        private readonly ILocalSettingsSaver _localSettingsSaver;
         private const string JsonFileName = "assembly.json";
         private string AssemblyJsonFilePath;
         private CollectionViewSource _perimeterDevicesCollection = new();
+        private CollectionViewSource _perimeterDevicesCollectionCache = new();
         private string connectionString = @"Server=localhost;Database=acadBlocksDatabase;Trusted_Connection=True;";
-
-        #region Properties 
-
-        private System.Collections.ObjectModel.ObservableCollection<ViewModelAssembly> _perimeterDeviceList;
-        public System.Collections.ObjectModel.ObservableCollection<ViewModelAssembly> PerimeterDeviceList
-        {
-            get => _perimeterDeviceList;
-            set
-            {
-                _perimeterDeviceList = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private System.Collections.ObjectModel.ObservableCollection<string> _terminalsList;
-        public System.Collections.ObjectModel.ObservableCollection<string> TerminalsList
-        {
-            get => _terminalsList;
-            set
-            {
-                _terminalsList = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private System.Collections.ObjectModel.ObservableCollection<ViewModelCable> _cablesList;
-        public System.Collections.ObjectModel.ObservableCollection<ViewModelCable> CablesList
-        {
-            get => _cablesList;
-            set
-            {
-                _cablesList = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private ObservableCollection<ViewModelAssembly> _viewModelAssemblyList;
-        public ObservableCollection<ViewModelAssembly> ViewModelAssemblyList
-        {
-            get => _viewModelAssemblyList;
-            set
-            {
-                _viewModelAssemblyList = value;
-                
-                OnPropertyChanged();
-            }
-        }
-
-        private ViewModelAssembly _selectedPerimeterDevice;
-        public ViewModelAssembly SelectedPerimeterDevice
-        {
-            get => _selectedPerimeterDevice;
-            set
-            {
-                _selectedPerimeterDevice = value;
-
-                if (_selectedPerimeterDevice != null)
-                {
-                    TerminalsList.Clear();
-                    foreach (var item in _selectedPerimeterDevice.TerminalList)
-                    {
-                        TerminalsList.Add(item);
-                    }
-                }
-                if (_selectedPerimeterDevice?.ImagePath != null)
-                {
-                    DisplayedImagePath = _selectedPerimeterDevice.ImagePath;
-                }
-                OnPropertyChanged();
-            }
-        }
-
-        private string _displayedImagePath;
-        public string DisplayedImagePath
-        {
-            get => _displayedImagePath;
-            set
-            {
-                _displayedImagePath = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private ViewModelCable _selectedCable;
-        public ViewModelCable SelectedCable
-        {
-            get => _selectedCable;
-            set
-            {
-                _selectedCable = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private ViewModelAssembly _selectedAssembly;
-        public ViewModelAssembly SelectedAssembly
-        {
-            get => _selectedAssembly;
-            set
-            {
-                _selectedAssembly = value;
-                DisplayedImagePath = _selectedAssembly?.ImagePath;
-                OnPropertyChanged();
-            }
-        }
-        private string _selectedTerminal;
-
-        public string SelectedTerminal
-        {
-            get => _selectedTerminal;
-            set
-            {
-                _selectedTerminal = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _filterText;
-        public string FilterText
-        {
-            get => _filterText;
-            set
-            {
-                _filterText = value;
-                _perimeterDevicesCollection.View.Refresh();
-                OnPropertyChanged();
-            }
-        }
-
-        public ICollectionView SourceCollection
-        {
-            get => _perimeterDevicesCollection.View;
-            set
-            {
-                OnPropertyChanged();
-            }
-        }
-        
-
-        #endregion Properties
 
         #region Commands
 
@@ -228,6 +93,20 @@ namespace TerminalsManagerUI.ViewModels
             }
         }
 
+        //DeleteCacheDetectorCommand
+        private RelayCommand _deleteCacheDetectorCommand;
+        public RelayCommand DeleteCacheDetectorCommand
+        {
+            get
+            {
+                return _deleteCacheDetectorCommand ??= new RelayCommand(obj =>
+                {
+                    PerimeterDeviceListCache.Remove(SelectedPerimeterDeviceCache);
+                    TerminalsList.Clear();
+                });
+            }
+        }
+
         //Edit Detector Command
         private RelayCommand _editDetectorCommand;
         public RelayCommand EditDetectorCommand
@@ -265,6 +144,19 @@ namespace TerminalsManagerUI.ViewModels
                     // Allow Drag and drop between different collections
                     SelectedAssembly.DragDropContext = "1";
                     SelectedAssembly.IsTarget = true;
+                });
+            }
+        }
+
+        // Delete all cached assemblies
+        private RelayCommand _deleteAllCacheDetectorCommand;
+        public RelayCommand DeleteAllCacheDetectorCommand
+        {
+            get
+            {
+                return _deleteAllCacheDetectorCommand ??= new RelayCommand(obj =>
+                {
+                    PerimeterDeviceListCache.Clear();
                 });
             }
         }
@@ -384,22 +276,33 @@ namespace TerminalsManagerUI.ViewModels
                     }
                     else
                     {
-                        var assemblySaver = new AssemblySaver
-                        {
-                            TargetFileName = AssemblyJsonFilePath
-                        };
-                        if (assemblySaver.Save(ViewModelAssemblyList))
-                        {
-                            Environment.Exit(AppJsonGenerateSuccess);
-                        }
-                        else
-                        {
-                            MessageBox.Show("Failed to save file.");
-                        }
-
+                        SaveCacheDevices();
+                        GenerateAndSaveJson();
                     }
-                    
+
                 });
+            }
+        }
+
+        private void GenerateAndSaveJson()
+        {
+            var lst = new List<int>();
+            foreach (var assemblyCache in PerimeterDeviceListCache)
+            {
+                lst.Add(assemblyCache.GetAssembly.Device.Id);
+            }
+            _localSettingsSaver.SetPerimeterDevicesIdSetting(lst);
+            var assemblySaver = new AssemblySaver
+            {
+                TargetFileName = AssemblyJsonFilePath
+            };
+            if (assemblySaver.Save(ViewModelAssemblyList))
+            {
+                Environment.Exit(AppJsonGenerateSuccess);
+            }
+            else
+            {
+                MessageBox.Show("Failed to save file.");
             }
         }
 
@@ -411,6 +314,10 @@ namespace TerminalsManagerUI.ViewModels
             {
                 return _onEnterKeyDownHandler ??= new RelayCommand(obj =>
                 {
+                    if(SelectedCable?.Designation == null)
+                    { 
+                        return; 
+                    }
                     var newCable = new Cable() { Designation = IncreaseCableNumber(SelectedCable.Designation) };
                     var newViewModelCable = new ViewModelCable(newCable);
                     CablesList.Add(newViewModelCable);
@@ -419,21 +326,13 @@ namespace TerminalsManagerUI.ViewModels
             }
         }
 
-        private string IncreaseCableNumber(string designation)
-        {
-            if (StringUtils.TryIncreaseLastNumber(designation, out var increaseString))
-            { 
-                 return increaseString;
-            }
-            return designation;
-        }
-
         #endregion Commands
 
         #region Constructor
-        public ViewModel( IDialogService dialogService )
+        public ViewModel( IDialogService dialogService, ILocalSettingsSaver localSettingsSaver )
         {
             _dialogService = dialogService;
+            _localSettingsSaver = localSettingsSaver;
             AssemblyJsonFilePath = System.IO.Path.GetTempPath() + JsonFileName;
             PerimeterDeviceList = new ObservableCollection<ViewModelAssembly>();
             TerminalsList = new System.Collections.ObjectModel.ObservableCollection<string>();
@@ -446,7 +345,16 @@ namespace TerminalsManagerUI.ViewModels
             ViewModelAssemblyList = new ObservableCollection<ViewModelAssembly>();
 
             LoadData();
-            
+
+            //We must add items in second collection too
+            _viewModelAssemblyList.CollectionChanged += (sender, e) =>
+            {
+                if (e.Action == NotifyCollectionChangedAction.Add)
+                {
+                    var senderCollection = (ICollection<ViewModelAssembly>)sender;
+                    PerimeterDeviceListCache.Add(senderCollection.Last());
+                }
+            };
         }
         #endregion Constructor   
 
@@ -465,15 +373,33 @@ namespace TerminalsManagerUI.ViewModels
                 {
                     var assy = new Assembly(perimeterDevice);
                     PerimeterDeviceList.Add(new ViewModelAssembly(assy));
+
+                    AddCacheDevices(PerimeterDeviceList);
                 }
             }
 
-            _perimeterDevicesCollection.Source = PerimeterDeviceList;
-            
+            _perimeterDevicesCollection.Source = PerimeterDeviceList;           
             _perimeterDevicesCollection.Filter += ApplyFilter;
 
+            _perimeterDevicesCollectionCache.Source = PerimeterDeviceListCache;
+            _perimeterDevicesCollectionCache.Filter += ApplyFilterCache;
+
             OnPropertyChanged("SourceCollection");
-        
+            OnPropertyChanged("SourceCollectionCache");
+
+        }
+
+        private void AddCacheDevices(System.Collections.ObjectModel.ObservableCollection<ViewModelAssembly> perimeterDeviceList)
+        {
+            var cacheIds = _localSettingsSaver.GetPerimeterDevicesIdSetting();
+            PerimeterDeviceListCache = new (perimeterDeviceList
+                .Where(x => cacheIds.Contains(x.GetAssembly.Device.Id)).ToList());
+        }
+
+        private void SaveCacheDevices()
+        {
+            var ids = PerimeterDeviceListCache.Select(x => x.GetAssembly.Device.Id).ToList();
+            _localSettingsSaver.SetPerimeterDevicesIdSetting(ids);
         }
 
         private void ApplyFilter(object sender, FilterEventArgs e)
@@ -488,6 +414,41 @@ namespace TerminalsManagerUI.ViewModels
             e.Accepted = assy.DeviceName.ToUpper().Contains(FilterText.ToUpper());
         }
 
-        
+        private void ApplyFilterCache(object sender, FilterEventArgs e)
+        {
+            if (string.IsNullOrEmpty(FilterTextCache))
+            {
+                e.Accepted = true;
+                return;
+            }
+
+            var assy = e.Item as ViewModelAssembly;
+            e.Accepted = assy.DeviceName.ToUpper().Contains(FilterTextCache.ToUpper());
+        }
+
+        private string IncreaseCableNumber(string designation)
+        {
+            if (StringUtils.TryIncreaseLastNumber(designation, out var increaseString))
+            {
+                return increaseString;
+            }
+            return designation;
+        }
+
+        private void UpdateDependentUiElements(ViewModelAssembly viewModelAssembly)
+        {
+            if (viewModelAssembly != null)
+            {
+                TerminalsList.Clear();
+                foreach (var item in viewModelAssembly.TerminalList)
+                {
+                    TerminalsList.Add(item);
+                }
+            }
+            if (viewModelAssembly?.ImagePath != null)
+            {
+                DisplayedImagePath = viewModelAssembly.ImagePath;
+            }
+        }
     }
 }

@@ -27,8 +27,8 @@ namespace TerminalsManagerUI
         public MainWindow()
         {
             InitializeComponent();
-            
-            DataContext =  new ViewModel(new DialogService());
+            var localSettingsSaver = new LocalSettingsSaver(new LocalSettingsUnpackaged());
+            DataContext =  new ViewModel(new DialogService(), localSettingsSaver);
         }
     }
 }
