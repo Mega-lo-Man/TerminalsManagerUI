@@ -22,7 +22,21 @@ namespace TerminalsManagerUI.Services.DataRepository
 
         public object GetSetting(string key)
         {
+            /*
             var sumString = File.ReadLines(_fullPath);
+            */
+            var sumString = new List<string>();
+            using FileStream fs = File.Open(_fullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
+            using (StreamReader sr = new(fs))
+            {
+                while (!sr.EndOfStream)
+                {
+                    sumString.Add(sr.ReadLine());
+                }
+            }
+
+            if(sumString.Count == 0)
+                return new List<int>();
 
             var strArray = sumString.ElementAt(0).Split(" ");
             var intList = new List<int>();
@@ -37,7 +51,7 @@ namespace TerminalsManagerUI.Services.DataRepository
         public void SetSetting(string key, string value)
         {
             using FileStream fs = File.Open(_fullPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None);
-            Byte[] info = new UTF8Encoding(true).GetBytes(value);
+            var info = new UTF8Encoding(true).GetBytes(value);
             // Add some information to the file.
             fs.Write(info, 0, info.Length);
         }
