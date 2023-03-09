@@ -43,7 +43,7 @@ namespace TerminalsManagerUI.Models
         public object Clone()
         {
             var newDevice = (PerimeterDevice)Device.Clone();
-            List<Cable> newPerimeterCables = null;
+            var newPerimeterCables = new List<Cable>();
             if (PerimeterCables != null)
             {
                 foreach (var cable in PerimeterCables)
