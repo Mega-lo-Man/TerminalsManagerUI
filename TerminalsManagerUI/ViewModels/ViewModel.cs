@@ -337,21 +337,31 @@ namespace TerminalsManagerUI.ViewModels
             PerimeterDeviceList = new ObservableCollection<ViewModelAssembly>();
             TerminalsList = new System.Collections.ObjectModel.ObservableCollection<string>();
             var firstVievModelCable = new ViewModelCable(new Cable() { Designation = "K1" });
-            CablesList = new() 
-            { 
+            CablesList = new()
+            {
                 firstVievModelCable
             };
             SelectedCable = firstVievModelCable;
             ViewModelAssemblyList = new ObservableCollection<ViewModelAssembly>();
 
             LoadData();
+            SetAddDeviceCacheEvent();
+        }
 
+        private void SetAddDeviceCacheEvent()
+        {
             //We must add items in second collection too
             _viewModelAssemblyList.CollectionChanged += (sender, e) =>
             {
                 if (e.Action == NotifyCollectionChangedAction.Add)
                 {
                     var senderCollection = (ICollection<ViewModelAssembly>)sender;
+                    var lastElement = senderCollection.Last();
+                    foreach (var deviceCache in PerimeterDeviceListCache)
+                    {
+                        if (deviceCache.DeviceName.Equals(lastElement.DeviceName))
+                            return;
+                    }
                     PerimeterDeviceListCache.Add(senderCollection.Last());
                 }
             };
